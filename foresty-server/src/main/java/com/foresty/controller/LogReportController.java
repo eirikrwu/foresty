@@ -1,55 +1,47 @@
 package com.foresty.controller;
 
+import com.foresty.model.Event;
+import com.foresty.model.EventGroup;
 import com.foresty.model.Log;
+import com.foresty.repository.EventRepository;
 import com.foresty.repository.LogRepository;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by ericwu on 3/15/14.
  */
 @Controller
-@RequestMapping("/report")
+@RequestMapping("")
 public class LogReportController {
     @Autowired
     private LogRepository logRepository;
+    @Autowired
+    private EventRepository eventRepository;
 
-    @RequestMapping(value = "/{parentNodeDepth}/{parentNodeName}/log", method = RequestMethod.GET)
-    public @ResponseBody List<Log> getLogs(@PathVariable int parentNodeDepth, @PathVariable String parentNodeName) {
-        return this.logRepository.getLogs(parentNodeDepth, parentNodeName);
+    @RequestMapping(value = "/event-groups", method = RequestMethod.GET)
+    public @ResponseBody List<EventGroup> getEventGroups() {
+        List<EventGroup> eventGroups = Lists.newArrayList();
+        for (String name : this.eventRepository.getEventNames()) {
+            EventGroup eventGroup = new EventGroup();
+            eventGroup.setName(name);
+            eventGroups.add(eventGroup);
+        }
+
+        return eventGroups;
     }
 
-    @RequestMapping(value = "/{parentNodeDepth}/{parentNodeName}/nodes", method = RequestMethod.GET)
-    public @ResponseBody
-    List<Node> getChildNodes(@PathVariable int parentNodeDepth, @PathVariable String parentNodeName) {
-        List<Node> nodes = Lists.newArrayList();
-        for (String nodeName : this.logRepository.getChildNodes(parentNodeDepth, parentNodeName)) {
-            Node node = new Node();
-            node.setNode(nodeName);
-            nodes.add(node);
-        }
-
-        return nodes;
+    @RequestMapping(value = "/events", method = RequestMethod.GET)
+    public @ResponseBody List<Event> getEventsByName(@RequestParam("name") String eventName) {
+        return this.eventRepository.getEventsByName(eventName);
     }
 
-    public static class Node {
-        private String node;
-
-        public String getNode() {
-            return node;
-        }
-
-        public void setNode(String node) {
-            this.node = node;
-        }
+    @RequestMapping(value = "/events/{eventId}", method = RequestMethod.GET)
+    public @ResponseBody List<Log> getLogForEvents(@PathVariable String eventId) {
+        return this.logRepository.findLogByEventId(eventId);
     }
 }

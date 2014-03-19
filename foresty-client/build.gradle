@@ -1,5 +1,27 @@
+apply plugin: 'maven-publish'
+
 dependencies {
     compile 'org.codehaus.jackson:jackson-mapper-asl:1.9.13'
     compile 'org.apache.httpcomponents:httpclient:4.3.2'
     compile 'org.apache.httpcomponents:fluent-hc:4.3.2'
+}
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.allJava
+}
+
+publishing {
+    publications {
+        forestyClient(MavenPublication) {
+            groupId 'com.foresty.client'
+            artifactId 'foresty-client'
+            version '0.1'
+
+            artifact sourceJar {
+                classifier "source"
+            }
+
+            from components.java
+        }
+    }
 }

@@ -17,42 +17,56 @@ import java.util.Map;
  */
 public class ForestyAppender extends AppenderSkeleton {
     public static final String LOG_MESSAGE_SEPARATOR = "__/\n/__";
-    public static final String NODE_NAME_MDC_PREFIX = "__node";
-    public static final String PATH_PREFIX = "__";
+    public static final String PATH_PREFIX = "__begin-foresty__";
     public static final String PATH_SAPERATOR = ",,";
 
-    private final List<String> cachedLoggings = Lists.newArrayList();
+    public static final String EVENT_KEY = "__forestyEvent";
+    public static final String EVENT_ID_KEY = "__forestyEventId";
+
+    public static final String DEFAULT_EVENT_NAME = "__ungroupedLog";
+    public static final String DEFAULT_EVENT_ID = "__defaultUngroupedEventId";
+
+    // FIXME: don't used static, use a seperate cache and submit executor instead
+    private static final List<String> CACHED_LOGGINGS = Lists.newArrayList();
 
     private String forestyUrl;
-    private int flushThreshold;
+    private int flushThreshold = 1;
+    private boolean eventLogOnly = true;
 
     @Override
     protected void append(LoggingEvent event) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getLayout().format(event).trim());
-        sb.append(PATH_PREFIX);
-
-        // first element is timestamp
-        sb.append(event.getTimeStamp());
-        sb.append(PATH_SAPERATOR);
-        // send element level
-        sb.append(event.getLevel().toInt());
-        sb.append(PATH_SAPERATOR);
-
-        // the remaining parts are tags
-        for (int i = 1; ; i++) {
-            String mdcKey = NODE_NAME_MDC_PREFIX + i;
-            Object mdcValue = event.getMDC(mdcKey);
-            if (mdcValue != null && mdcValue instanceof String) {
-                sb.append(mdcValue);
-                sb.append(PATH_SAPERATOR);
-            } else {
-                break;
-            }
+        // check foresty event first
+        String eventName = (String) event.getMDC(EVENT_KEY);
+        String eventId = (String) event.getMDC(EVENT_ID_KEY);
+        if (eventName == null && !this.eventLogOnly) {
+            eventName = DEFAULT_EVENT_NAME;
+            eventId = DEFAULT_EVENT_ID;
         }
 
-        this.cachedLoggings.add(sb.toString());
-        if (this.cachedLoggings.size() >= this.flushThreshold) {
+        // if there is no event and this appender is event log only, ignore the log message
+        if (eventName != null) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(getLayout().format(event).trim());
+            sb.append(PATH_PREFIX);
+
+            // first element is timestamp
+            sb.append(event.getTimeStamp());
+            sb.append(PATH_SAPERATOR);
+            // send element level
+            sb.append(event.getLevel().toInt());
+            sb.append(PATH_SAPERATOR);
+            // event name
+            sb.append(eventName);
+            sb.append(PATH_SAPERATOR);
+            // event id
+            sb.append(eventId);
+            sb.append(PATH_SAPERATOR);
+
+            // add event string to cache
+            this.CACHED_LOGGINGS.add(sb.toString());
+        }
+
+        if (this.CACHED_LOGGINGS.size() >= this.flushThreshold) {
             flush();
         }
     }
@@ -83,8 +97,16 @@ public class ForestyAppender extends AppenderSkeleton {
         this.flushThreshold = flushThreshold;
     }
 
+    public boolean isEventLogOnly() {
+        return eventLogOnly;
+    }
+
+    public void setEventLogOnly(boolean eventLogOnly) {
+        this.eventLogOnly = eventLogOnly;
+    }
+
     private void flush() {
-        String logs = Joiner.on(LOG_MESSAGE_SEPARATOR).join(this.cachedLoggings);
+        String logs = Joiner.on(LOG_MESSAGE_SEPARATOR).join(this.CACHED_LOGGINGS);
 
         Map<String, String> logRequest = Maps.newHashMap();
         logRequest.put("log", logs);
@@ -93,7 +115,7 @@ public class ForestyAppender extends AppenderSkeleton {
         try {
             Request.Put(this.forestyUrl + "/log").addHeader("Content-type", "application/json")
                     .bodyByteArray(new ObjectMapper().writeValueAsBytes(logRequest)).execute().discardContent();
-            this.cachedLoggings.clear();
+            this.CACHED_LOGGINGS.clear();
         } catch (IOException e) {
             //FIXME: handle error
             e.printStackTrace();

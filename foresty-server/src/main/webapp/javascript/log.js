@@ -1,50 +1,72 @@
-var currentNodeDepth;
-var currentNodeName;
-
 $(document).ready(function () {
     // bind node row click event
 
-    showChildNodes(0, "empty");
+    showEventGroups();
 });
 
-function showChildNodes(parentNodeDepth, parentNodeName) {
-    $.getJSON("/q/report/" + parentNodeDepth + "/" + parentNodeName + "/nodes", function (data) {
-        currentNodeDepth = parentNodeDepth;
-        currentNodeName = parentNodeName;
-
-        var dynatable = $('#node-table').data('dynatable');
+function showEventGroups() {
+    $.getJSON("q/event-groups", function (data) {
+        var eventGroupTable = $('#event-group-table');
+        var dynatable = eventGroupTable.data('dynatable');
         if (dynatable != null) {
             dynatable.settings.dataset.originalRecords = data;
             dynatable.process();
         } else {
-            $('#node-table').on('dynatable:afterUpdate', function(event, rows) {
-                $(".clickableRow").click(function() {
-                    showChildNodes(currentNodeDepth + 1, $(this).attr("nodename"));
+            eventGroupTable.on('dynatable:afterUpdate', function(event, rows) {
+                $(".clickableRow", eventGroupTable).click(function() {
+                    var eventName = $(this).attr("eventname");
+                    showEvent(eventName);
                 });
-
-                showLog(currentNodeDepth, currentNodeName);
             });
 
-            $('#node-table').dynatable({
+            eventGroupTable.dynatable({
                 dataset: {
                     records: data
                 },
                 writers: {
-                    _rowWriter: clickableRowWriter
+                    _rowWriter: eventGroupRowWriter
                 }
             });
         }
     });
 }
 
-function showLog(parentNodeDepth, parentNodeName) {
-    $.getJSON("/q/report/" + parentNodeDepth + "/" + parentNodeName + "/log", function (data) {
-        var dynatable = $('#log-table').data('dynatable');
+function showEvent(eventName) {
+    $.getJSON("q/events?name=" + eventName, function (data) {
+        var eventTable = $('#event-table');
+        var dynatable = eventTable.data('dynatable');
         if (dynatable != null) {
             dynatable.settings.dataset.originalRecords = data;
             dynatable.process();
         } else {
-            $('#log-table').dynatable({
+            eventTable.on('dynatable:afterUpdate', function(event, rows) {
+                $(".clickableRow", eventTable).click(function() {
+                    var eventId = $(this).attr("eventId");
+                    showLog(eventId);
+                });
+            });
+
+            eventTable.dynatable({
+                dataset: {
+                    records: data
+                },
+                writers: {
+                    _rowWriter: eventRowWriter
+                }
+            });
+        }
+    });
+}
+
+function showLog(eventId) {
+    $.getJSON("q/events/" + eventId, function (data) {
+        var logTable = $('#log-table');
+        var dynatable = logTable.data('dynatable');
+        if (dynatable != null) {
+            dynatable.settings.dataset.originalRecords = data;
+            dynatable.process();
+        } else {
+            logTable.dynatable({
                 dataset: {
                     records: data
                 }
@@ -55,7 +77,7 @@ function showLog(parentNodeDepth, parentNodeName) {
 
 // dynatable extension
 
-function clickableRowWriter(rowIndex, record, columns, cellWriter) {
+function eventGroupRowWriter(rowIndex, record, columns, cellWriter) {
     var tr = '';
 
     // grab the record's attribute for each column
@@ -63,5 +85,16 @@ function clickableRowWriter(rowIndex, record, columns, cellWriter) {
         tr += cellWriter(columns[i], record);
     }
 
-    return '<tr class="clickableRow" nodeName=' + record.node + '>' + tr + '</tr>';
+    return '<tr class="clickableRow" eventname=' + record.name + '>' + tr + '</tr>';
+}
+
+function eventRowWriter(rowIndex, record, columns, cellWriter) {
+    var tr = '';
+
+    // grab the record's attribute for each column
+    for (var i = 0, len = columns.length; i < len; i++) {
+        tr += cellWriter(columns[i], record);
+    }
+
+    return '<tr class="clickableRow" eventid=' + record.id + '>' + tr + '</tr>';
 }

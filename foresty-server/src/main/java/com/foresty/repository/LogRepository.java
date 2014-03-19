@@ -9,6 +9,7 @@ import java.util.List;
 /**
  * Created by ericwu on 3/15/14.
  */
-public interface LogRepository extends JpaRepository<Log, Long>, LogRepositoryCustomQuery {
-
+public interface LogRepository extends JpaRepository<Log, Long> {
+    @Query("SELECT l FROM Log l WHERE l.event.id = ?1 ORDER BY l.timestamp")
+    public List<Log> findLogByEventId(String eventId);
 }
