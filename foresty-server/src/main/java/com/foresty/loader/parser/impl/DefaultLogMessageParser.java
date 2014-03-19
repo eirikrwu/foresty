@@ -16,10 +16,8 @@ public class DefaultLogMessageParser implements LogMessageParser {
     public static final String PATH_SAPERATOR = ",,";
 
     @Override
-    public LogWithPath parseLogMessage(String message) {
+    public Log parseLogMessage(String message) {
         Log log = new Log();
-        List<String> path = null;
-
         String[] pieces = message.split(PATH_PREFIX);
         if (pieces.length == 1) {
             // simply use raw message
@@ -32,22 +30,23 @@ public class DefaultLogMessageParser implements LogMessageParser {
 
             // get path information
             List<String> pathTokens =
-                    Lists.newArrayList(Splitter.on(PATH_SAPERATOR).trimResults().split(pathString));
+                    Lists.newArrayList(Splitter.on(PATH_SAPERATOR).trimResults().omitEmptyStrings().split(pathString));
             try {
-                long timestamp = Long.parseLong(pathTokens.get(0));
+                int tokenIndex = 0;
+                // first part if timestamp
+                long timestamp = Long.parseLong(pathTokens.get(tokenIndex++));
                 log.setTimestamp(new Date(timestamp));
-
-                path = Lists.newArrayList(pathTokens.subList(1, pathTokens.size()));
+                // second part is level
+                int level = Integer.parseInt(pathTokens.get(tokenIndex++));
+                log.setLevel(level);
+                // remaining are path
+                log.setPath(pathTokens.subList(tokenIndex, pathTokens.size()));
             } catch (NumberFormatException e) {
                 // use raw message in case there is any error
                 log.setMessage(message);
             }
         }
 
-        LogWithPath logWithPath = new LogWithPath();
-        logWithPath.setLog(log);
-        logWithPath.setPath(path);
-
-        return logWithPath;
+        return log;
     }
 }

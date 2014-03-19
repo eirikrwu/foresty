@@ -10,7 +10,6 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManagerFactory;
@@ -24,9 +23,8 @@ import java.util.Properties;
 @Configuration
 @EnableJpaRepositories
 @EnableTransactionManagement
-@EnableWebMvc
-@ComponentScan("com.foresty")
-public class Config {
+@ComponentScan(value = {"com.foresty.loader", "com.foresty.model", "com.foresty.repository"})
+public class DomainConfig {
     @Configuration
     @Profile("production")
     @PropertySource("classpath:database.production.properties")
@@ -72,7 +70,7 @@ public class Config {
 
         Properties properties = new Properties();
         properties.put("hibernate.dialect", "org.hibernate.dialect.MySQL5InnoDBDialect");
-        // properties.put("hibernate.show_sql", true);
+        properties.put("hibernate.show_sql", true);
         factory.setJpaProperties(properties);
 
         factory.afterPropertiesSet();

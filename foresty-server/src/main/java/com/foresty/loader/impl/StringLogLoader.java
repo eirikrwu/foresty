@@ -21,6 +21,8 @@ import javax.transaction.Transactional;
 @Component
 @Qualifier("stringLogLoader")
 public class StringLogLoader implements BatchLogLoader {
+    public static final String LOG_MESSAGE_SEPARATOR = "__/\n/__";
+
     @Autowired
     private LogRepository logRepository;
 
@@ -28,43 +30,22 @@ public class StringLogLoader implements BatchLogLoader {
     @Transactional
     public void loadLog(Object object, String type) throws BatchLogLoaderException {
         // TODO: right now log type is ignored. Should use it to choose the right LogMessageParser instance.
-
         Preconditions.checkNotNull(object);
         Preconditions.checkArgument(object instanceof String, "The log should be a string.");
 
         try {
             LogMessageParser logMessageParser = new DefaultLogMessageParser();
-            for (String logMessage : Splitter.on("\n").trimResults().split((String) object)) {
-                // ingore empty line
+            for (String logMessage : Splitter.on(LOG_MESSAGE_SEPARATOR).trimResults().split((String) object)) {
+                // ignore empty line
                 if (logMessage.isEmpty()) {
                     continue;
                 }
 
                 // parse the log message
-                LogMessageParser.LogWithPath logWithPath = logMessageParser.parseLogMessage(logMessage);
-
-                // build node along the path
-                Log parent = null;
-                if (logWithPath.getPath() != null) {
-                    for (String nodeName : logWithPath.getPath()) {
-                        // check whether this node exists
-                        Log node = this.logRepository.getLogByName(nodeName);
-                        // create a new one if not
-                        if (node == null) {
-                            node = new Log();
-                            node.setName(nodeName);
-                            node.setParent(parent);
-                            node = this.logRepository.save(node);
-                        }
-
-                        // update parent
-                        parent = node;
-                    }
-                }
+                Log log = logMessageParser.parseLogMessage(logMessage);
 
                 // now we got the right parent of this log, save it
-                logWithPath.getLog().setParent(parent);
-                this.logRepository.save(logWithPath.getLog());
+                this.logRepository.save(log);
             }
         } catch (DataAccessException e) {
             throw new BatchLogLoaderException(

@@ -1,5 +1,6 @@
 package com.foresty;
 
+import com.foresty.controller.ControllerConfig;
 import org.apache.log4j.Logger;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
@@ -25,11 +26,11 @@ public class RestfulEndpointIntializer implements WebApplicationInitializer {
         LOGGER.info("Using profile '" + profile + "'.");
 
         AnnotationConfigWebApplicationContext applicationContext = new AnnotationConfigWebApplicationContext();
-        applicationContext.register(Config.class);
+        applicationContext.register(ControllerConfig.class);
 
         ServletRegistration.Dynamic dispatcher =
                 servletContext.addServlet("dispatcher", new DispatcherServlet(applicationContext));
         dispatcher.setLoadOnStartup(1);
-        dispatcher.addMapping("/");
+        dispatcher.addMapping("/q/*");
     }
 }

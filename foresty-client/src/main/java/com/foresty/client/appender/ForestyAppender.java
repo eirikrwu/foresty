@@ -16,6 +16,7 @@ import java.util.Map;
  * Created by ericwu on 3/15/14.
  */
 public class ForestyAppender extends AppenderSkeleton {
+    public static final String LOG_MESSAGE_SEPARATOR = "__/\n/__";
     public static final String NODE_NAME_MDC_PREFIX = "__node";
     public static final String PATH_PREFIX = "__";
     public static final String PATH_SAPERATOR = ",,";
@@ -30,15 +31,21 @@ public class ForestyAppender extends AppenderSkeleton {
         StringBuilder sb = new StringBuilder();
         sb.append(getLayout().format(event).trim());
         sb.append(PATH_PREFIX);
-        sb.append(event.getTimeStamp());
 
-        // append tags
+        // first element is timestamp
+        sb.append(event.getTimeStamp());
+        sb.append(PATH_SAPERATOR);
+        // send element level
+        sb.append(event.getLevel().toInt());
+        sb.append(PATH_SAPERATOR);
+
+        // the remaining parts are tags
         for (int i = 1; ; i++) {
             String mdcKey = NODE_NAME_MDC_PREFIX + i;
             Object mdcValue = event.getMDC(mdcKey);
             if (mdcValue != null && mdcValue instanceof String) {
-                sb.append(PATH_SAPERATOR);
                 sb.append(mdcValue);
+                sb.append(PATH_SAPERATOR);
             } else {
                 break;
             }
@@ -77,7 +84,7 @@ public class ForestyAppender extends AppenderSkeleton {
     }
 
     private void flush() {
-        String logs = Joiner.on("\n").join(this.cachedLoggings);
+        String logs = Joiner.on(LOG_MESSAGE_SEPARATOR).join(this.cachedLoggings);
 
         Map<String, String> logRequest = Maps.newHashMap();
         logRequest.put("log", logs);
