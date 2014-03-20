@@ -1,5 +1,6 @@
 package com.foresty.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import java.util.Date;
@@ -12,6 +13,7 @@ public class Event {
     @Id
     private String id;
     private String name;
+    @Column(columnDefinition = "DATETIME(3)")
     private Date startTime;
     private long timespan;
     private int highestLevel;

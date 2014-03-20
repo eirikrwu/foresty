@@ -12,6 +12,7 @@ public class Log {
     @Id
     @GeneratedValue
     private long id;
+    @Column(columnDefinition = "DATETIME(3)")
     private Date timestamp;
     private int level;
     @Column(columnDefinition = "TEXT")
