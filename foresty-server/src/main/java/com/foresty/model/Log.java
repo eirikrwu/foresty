@@ -14,7 +14,7 @@ public class Log {
     private long id;
     private Date timestamp;
     private int level;
-    @Column(length = 1024)
+    @Column(columnDefinition = "TEXT")
     private String message;
     @ManyToOne
     private Event event;

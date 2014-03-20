@@ -28,9 +28,7 @@ public class DefaultLogMessageParser implements LogMessageParser {
             String pathString = pieces[pieces.length - 1];
 
             // get actual message
-            // FIXME: deal with message trancation
-            log.setMessage(message.substring(0,
-                    Math.min(1023, message.length() - pathString.length() - PATH_PREFIX.length())));
+            log.setMessage(message.substring(0, message.length() - pathString.length() - PATH_PREFIX.length()));
 
             // get path information
             List<String> pathTokens =
