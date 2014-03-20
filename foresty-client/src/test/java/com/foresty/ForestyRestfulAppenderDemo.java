@@ -1,29 +1,53 @@
 package com.foresty;
 
-import com.foresty.client.appender.ForestyAppender;
 import com.foresty.client.appender.ForestyLog4j;
 import org.apache.log4j.Logger;
-import org.apache.log4j.MDC;
-import org.junit.Test;
+
+import java.util.Date;
+import java.util.Random;
 
 /**
  * Created by ericwu on 3/16/14.
  */
 public class ForestyRestfulAppenderDemo {
-    @Test
-    public void testLog() {
-        Logger logger = Logger.getLogger(ForestyRestfulAppenderDemo.class);
+    private static final Logger LOGGER = Logger.getLogger(ForestyRestfulAppenderDemo.class);
+    private static final Random RANDOM = new Random(new Date().getTime());
 
-        ForestyLog4j.beginEvent("event1");
-        logger.info("log message 1");
-        logger.info("log message 2");
-        logger.info("log message 3");
-        ForestyLog4j.exitEvent();
+    public static void main(String[] args) {
+        new Thread(new Runnable() {
+            @Override public void run() {
+                while (true) {
+                    ForestyLog4j.beginEvent("event1");
+                    LOGGER.info("log message 1");
+                    LOGGER.info("log message 2");
+                    LOGGER.info("log message 3");
+                    ForestyLog4j.exitEvent();
 
-        ForestyLog4j.beginEvent("event2");
-        logger.info("log message 4");
-        logger.info("log message 5");
-        logger.info("log message 6");
-        ForestyLog4j.exitEvent();
+                    try {
+                        Thread.sleep(500 + RANDOM.nextInt(3000));
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
+
+        new Thread(new Runnable() {
+            @Override public void run() {
+                while (true) {
+                    ForestyLog4j.beginEvent("event2");
+                    LOGGER.info("log message 4");
+                    LOGGER.info("log message 5");
+                    LOGGER.info("log message 6");
+                    ForestyLog4j.exitEvent();
+
+                    try {
+                        Thread.sleep(500 + RANDOM.nextInt(3000));
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
     }
 }

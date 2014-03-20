@@ -3,14 +3,18 @@ package com.foresty.client.appender;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.apache.http.client.fluent.Request;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.spi.LoggingEvent;
 import org.codehaus.jackson.map.ObjectMapper;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Created by ericwu on 3/15/14.
@@ -26,12 +30,94 @@ public class ForestyAppender extends AppenderSkeleton {
     public static final String DEFAULT_EVENT_NAME = "__ungroupedLog";
     public static final String DEFAULT_EVENT_ID = "__defaultUngroupedEventId";
 
-    // FIXME: don't used static, use a seperate cache and submit executor instead
-    private static final List<String> CACHED_LOGGINGS = Lists.newArrayList();
+    private final LogSendingThread logSendingThread;
 
     private String forestyUrl;
-    private int flushThreshold = 1;
+    private int flushInterval = 10;
     private boolean eventLogOnly = true;
+
+    public ForestyAppender() {
+        this.logSendingThread = new LogSendingThread();
+        this.logSendingThread.setDaemon(true);
+        this.logSendingThread.start();
+    }
+
+    public class LogSendingThread extends Thread {
+        private final Queue<String> cachedLoggings = new ConcurrentLinkedQueue<String>();
+
+        public void addLog(String log) {
+            this.cachedLoggings.add(log);
+        }
+
+        public synchronized void flush() {
+            // take a snapshot of the loggings
+            int size = this.cachedLoggings.size();
+            // do nothing if the snapshot is empty
+            if (size == 0) {
+                return;
+            }
+            // snapshot
+            List<String> loggings = Lists.newArrayList();
+            for (int i = 0; i < size; i++) {
+                String log = this.cachedLoggings.remove();
+                loggings.add(log);
+            }
+            String logs = Joiner.on(LOG_MESSAGE_SEPARATOR).join(loggings);
+
+            Map<String, String> logRequest = Maps.newHashMap();
+            logRequest.put("log", logs);
+            logRequest.put("type", "default");
+
+            HttpURLConnection connection = null;
+            try {
+                String urlString = forestyUrl + (forestyUrl.endsWith("/") ? "q/log" : "/q/log");
+                URL url = new URL(urlString);
+                connection = (HttpURLConnection) url.openConnection();
+
+                connection.setRequestMethod("PUT");
+                connection.setRequestProperty("Content-type", "application/json");
+                connection.setDoOutput(true);
+                DataOutputStream os = new DataOutputStream(connection.getOutputStream());
+                try {
+                    os.writeBytes(new ObjectMapper().writeValueAsString(logRequest));
+                    os.flush();
+                } finally {
+                    os.close();
+                }
+
+                int responseCode = connection.getResponseCode();
+                if (responseCode != 200) {
+                    System.err.println(
+                            "Error occurred while sending log message to foresty server. Returned status code is " +
+                                    responseCode);
+                    System.err.println("Because of the error, some log messages have been dropped silently.");
+                }
+            } catch (IOException e) {
+                //FIXME: handle error
+                System.err.println("IOError occurred while sending log message to foresty server: " + e.getMessage());
+                System.err.println("Because of the error, some log messages have been dropped silently.");
+                e.printStackTrace();
+            } finally {
+                if (connection != null) {
+                    connection.disconnect();
+                }
+            }
+        }
+
+        @Override
+        public void run() {
+            while (true) {
+                try {
+                    Thread.sleep(flushInterval * 1000);
+                } catch (InterruptedException e) {
+                    // ignore
+                    e.printStackTrace();
+                }
+
+                flush();
+            }
+        }
+    }
 
     @Override
     protected void append(LoggingEvent event) {
@@ -63,17 +149,13 @@ public class ForestyAppender extends AppenderSkeleton {
             sb.append(PATH_SAPERATOR);
 
             // add event string to cache
-            this.CACHED_LOGGINGS.add(sb.toString());
-        }
-
-        if (this.CACHED_LOGGINGS.size() >= this.flushThreshold) {
-            flush();
+            this.logSendingThread.addLog(sb.toString());
         }
     }
 
     @Override
     public void close() {
-        flush();
+        this.logSendingThread.flush();
     }
 
     @Override
@@ -89,14 +171,6 @@ public class ForestyAppender extends AppenderSkeleton {
         this.forestyUrl = forestyUrl;
     }
 
-    public int getFlushThreshold() {
-        return flushThreshold;
-    }
-
-    public void setFlushThreshold(int flushThreshold) {
-        this.flushThreshold = flushThreshold;
-    }
-
     public boolean isEventLogOnly() {
         return eventLogOnly;
     }
@@ -105,20 +179,11 @@ public class ForestyAppender extends AppenderSkeleton {
         this.eventLogOnly = eventLogOnly;
     }
 
-    private void flush() {
-        String logs = Joiner.on(LOG_MESSAGE_SEPARATOR).join(this.CACHED_LOGGINGS);
+    public int getFlushInterval() {
+        return flushInterval;
+    }
 
-        Map<String, String> logRequest = Maps.newHashMap();
-        logRequest.put("log", logs);
-        logRequest.put("type", "default");
-
-        try {
-            Request.Put(this.forestyUrl + "/log").addHeader("Content-type", "application/json")
-                    .bodyByteArray(new ObjectMapper().writeValueAsBytes(logRequest)).execute().discardContent();
-            this.CACHED_LOGGINGS.clear();
-        } catch (IOException e) {
-            //FIXME: handle error
-            e.printStackTrace();
-        }
+    public void setFlushInterval(int flushInterval) {
+        this.flushInterval = flushInterval;
     }
 }
