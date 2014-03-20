@@ -9,10 +9,46 @@ import java.util.List;
 /**
  * Created by EveningSun on 14-3-19.
  */
-public interface EventRepository extends JpaRepository<Event, String> {
+public interface EventRepository extends EventRepositoryCustom, JpaRepository<Event, String> {
     @Query("SELECT DISTINCT (e.name) FROM Event e")
     public List<String> getEventNames();
 
-    @Query("SELECT e FROM Event e WHERE e.name = ?1 ORDER BY e.startTime")
-    public List<Event> getEventsByName(String name);
+    public static class EventCriteria {
+        private String name;
+        private Integer minHighestLevel;
+        private String orderBy;
+        private boolean orderDesc;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public Integer getMinHighestLevel() {
+            return minHighestLevel;
+        }
+
+        public void setMinHighestLevel(Integer minHighestLevel) {
+            this.minHighestLevel = minHighestLevel;
+        }
+
+        public String getOrderBy() {
+            return orderBy;
+        }
+
+        public void setOrderBy(String orderBy) {
+            this.orderBy = orderBy;
+        }
+
+        public boolean isOrderDesc() {
+            return orderDesc;
+        }
+
+        public void setOrderDesc(boolean orderDesc) {
+            this.orderDesc = orderDesc;
+        }
+    }
 }

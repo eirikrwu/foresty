@@ -36,8 +36,16 @@ public class LogReportController {
     }
 
     @RequestMapping(value = "/events", method = RequestMethod.GET)
-    public @ResponseBody List<Event> getEventsByName(@RequestParam("name") String eventName) {
-        return this.eventRepository.getEventsByName(eventName);
+    public @ResponseBody
+    List<Event> getEventsByCriterion(@RequestParam(value = "name", required = false) String eventName,
+                                     @RequestParam(value = "level", required = false) Integer minHigestLevel) {
+        EventRepository.EventCriteria criteria = new EventRepository.EventCriteria();
+        criteria.setName(eventName);
+        criteria.setMinHighestLevel(minHigestLevel);
+        criteria.setOrderBy("startTime");
+        criteria.setOrderDesc(true);
+
+        return this.eventRepository.getEventsByCriterion(criteria);
     }
 
     @RequestMapping(value = "/events/{eventId}", method = RequestMethod.GET)
