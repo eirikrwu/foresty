@@ -2,6 +2,7 @@ apply plugin: 'maven-publish'
 
 dependencies {
     compile 'org.codehaus.jackson:jackson-mapper-asl:1.9.13'
+    compile 'javax.servlet:javax.servlet-api:3.1.0'
 }
 
 task sourceJar(type: Jar) {
