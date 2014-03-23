@@ -6,17 +6,55 @@
 
     <script type="text/javascript" src="javascript/jquery-1.7.2.min.js"></script>
     <script type="text/javascript" src="javascript/jquery.dynatable.js"></script>
+    <script type="text/javascript" src="javascript/moment.min.js"></script>
 
     <script type="text/javascript" src="javascript/log.js"></script>
 
     <link rel="stylesheet" type="text/css" href="css/jquery.dynatable.css">
+
+    <style>
+        .leveldebug .columnLevel {
+            background: lightskyblue;
+        }
+
+        .levelinfo .columnLevel {
+            background: limegreen;
+        }
+
+        .levelwarn .columnLevel {
+            background: yellow;
+        }
+
+        .levelerror .columnLevel {
+            background: orange;
+        }
+
+        .levelfatal .columnLevel {
+            background: red;
+        }
+
+        table {
+            width: 100%;
+        }
+
+        tr {
+            text-align: left;
+        }
+
+        td {
+            vertical-align: top;
+        }
+    </style>
 </head>
 <body>
+<div>
+    <a id="close-self-button" href="#">Close</a>
+    <br/>
+</div>
 <div id="log-table-container">
     <table id="log-table">
         <thead>
         <tr>
-            <th>Id</th>
             <th>Level</th>
             <th>Message</th>
         </tr>

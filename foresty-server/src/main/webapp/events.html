@@ -6,16 +6,45 @@
 
     <script type="text/javascript" src="javascript/jquery-1.7.2.min.js"></script>
     <script type="text/javascript" src="javascript/jquery.dynatable.js"></script>
+    <script type="text/javascript" src="javascript/moment.min.js"></script>
 
     <script type="text/javascript" src="javascript/events.js"></script>
 
     <link rel="stylesheet" type="text/css" href="css/jquery.dynatable.css">
 
     <style>
+        .leveldebug .columnhighestLevel {
+            background: lightskyblue;
+        }
+
+        .levelinfo .columnhighestLevel {
+            background: limegreen;
+        }
+
+        .levelwarn .columnhighestLevel {
+            background: yellow;
+        }
+
+        .levelerror .columnhighestLevel {
+            background: orange;
+        }
+
+        .levelfatal .columnhighestLevel {
+            background: red;
+        }
+
+        tr {
+            text-align: left;
+        }
+
         #log-frame {
             position: fixed;
             bottom: 0;
             right: 0;
+            height: 100%;
+            width: 75%;
+            z-index: 999;
+            background: white;
         }
     </style>
 </head>
@@ -33,7 +62,6 @@
     <table id="event-table">
         <thead>
         <tr>
-            <th>Id</th>
             <th>Name</th>
             <th>Start Time</th>
             <th>Timespan</th>
@@ -43,7 +71,7 @@
         <tbody>
         </tbody>
     </table>
-    <iframe id="log-frame" width="1000" height="1000"></iframe>
+    <iframe id="log-frame"></iframe>
 </div>
 </body>
 </html>
