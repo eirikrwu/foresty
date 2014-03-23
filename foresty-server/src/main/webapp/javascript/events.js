@@ -2,7 +2,7 @@ $(document).ready(function () {
     // hide log-frame by default
     closeLogView();
 
-    // bind node row click event
+    // show events
     showEvents(null, null);
 });
 
@@ -83,6 +83,18 @@ function showEvents(name, level) {
                     var eventId = $(this).attr("eventId");
                     $('#log-frame').attr('src', "log.html?eventId=" + eventId);
                 });
+
+                $('.delete-event-button').click(function (e) {
+                    e.stopPropagation();
+                    var url = "q/events/" + $(this).attr("eventid");
+                    $.ajax({
+                        url: url,
+                        type: 'DELETE',
+                        success: function (data, textStatus, jaXHR) {
+                            showEvents(null, null);
+                        }
+                    })
+                });
             });
 
             eventTable.dynatable({
@@ -101,6 +113,10 @@ function showEvents(name, level) {
 }
 
 function eventCellWriter(column, record) {
+    if (column.id.localeCompare("operation") == 0) {
+        return '<td><a class="delete-event-button" href="#" eventid=' + record.id + '>Delete</a></td>'
+    }
+
     var html = column.attributeWriter(record),
         td = '<td';
 

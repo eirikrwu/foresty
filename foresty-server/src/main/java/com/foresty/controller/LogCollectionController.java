@@ -1,7 +1,7 @@
 package com.foresty.controller;
 
-import com.foresty.loader.BatchLogLoader;
-import com.foresty.loader.BatchLogLoaderException;
+import com.foresty.service.logloader.BatchLogLoaderService;
+import com.foresty.service.logloader.BatchLogLoaderServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -17,15 +17,15 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping("/log")
 public class LogCollectionController {
     @Autowired
-    @Qualifier("stringLogLoader")
-    private BatchLogLoader batchLogLoader;
+    @Qualifier("stringLogLoaderService")
+    private BatchLogLoaderService batchLogLoaderService;
 
     @RequestMapping(value = "", method = RequestMethod.PUT)
     public @ResponseBody String sendLog(@RequestBody SendLogRequest sendLogRequest) {
         try {
-            this.batchLogLoader.loadLog(sendLogRequest.getLog(), sendLogRequest.getType());
+            this.batchLogLoaderService.loadLog(sendLogRequest.getLog(), sendLogRequest.getType());
             return "OK";
-        } catch (BatchLogLoaderException e) {
+        } catch (BatchLogLoaderServiceException e) {
             e.printStackTrace();
         }
 

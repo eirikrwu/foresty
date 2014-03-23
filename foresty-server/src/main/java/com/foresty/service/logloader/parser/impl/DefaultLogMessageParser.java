@@ -1,6 +1,6 @@
-package com.foresty.loader.parser.impl;
+package com.foresty.service.logloader.parser.impl;
 
-import com.foresty.loader.parser.LogMessageParser;
+import com.foresty.service.logloader.parser.LogMessageParser;
 import com.foresty.model.Event;
 import com.foresty.model.Log;
 import com.google.common.base.Splitter;

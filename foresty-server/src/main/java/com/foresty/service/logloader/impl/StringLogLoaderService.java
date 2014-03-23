@@ -1,13 +1,13 @@
-package com.foresty.loader.impl;
+package com.foresty.service.logloader.impl;
 
-import com.foresty.loader.BatchLogLoader;
-import com.foresty.loader.BatchLogLoaderException;
-import com.foresty.loader.parser.LogMessageParser;
-import com.foresty.loader.parser.impl.DefaultLogMessageParser;
 import com.foresty.model.Event;
 import com.foresty.model.Log;
 import com.foresty.repository.EventRepository;
 import com.foresty.repository.LogRepository;
+import com.foresty.service.logloader.BatchLogLoaderService;
+import com.foresty.service.logloader.BatchLogLoaderServiceException;
+import com.foresty.service.logloader.parser.LogMessageParser;
+import com.foresty.service.logloader.parser.impl.DefaultLogMessageParser;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
@@ -15,18 +15,18 @@ import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Created by ericwu on 3/15/14.
  */
-@Component
+@Service
 @Qualifier("stringLogLoader")
-public class StringLogLoader implements BatchLogLoader {
+public class StringLogLoaderService implements BatchLogLoaderService {
     public static final String LOG_MESSAGE_SEPARATOR = "__/\n/__";
 
     @Autowired
@@ -36,7 +36,7 @@ public class StringLogLoader implements BatchLogLoader {
 
     @Override
     @Transactional
-    public void loadLog(Object object, String type) throws BatchLogLoaderException {
+    public void loadLog(Object object, String type) throws BatchLogLoaderServiceException {
         // TODO: right now log type is ignored. Should use it to choose the right LogMessageParser instance.
         Preconditions.checkNotNull(object);
         Preconditions.checkArgument(object instanceof String, "The log should be a string.");
@@ -91,7 +91,7 @@ public class StringLogLoader implements BatchLogLoader {
             this.eventRepository.save(events.values());
             this.logRepository.save(logs);
         } catch (DataAccessException e) {
-            throw new BatchLogLoaderException(
+            throw new BatchLogLoaderServiceException(
                     "Cannot load log. Error occurred while trying to access log repository: " + e.getMessage(), e);
         }
     }

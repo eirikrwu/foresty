@@ -23,7 +23,7 @@ import java.util.Properties;
 @Configuration
 @EnableJpaRepositories
 @EnableTransactionManagement
-@ComponentScan(value = {"com.foresty.loader", "com.foresty.model", "com.foresty.repository"})
+@ComponentScan(value = {"com.foresty.service", "com.foresty.model", "com.foresty.repository"})
 public class DomainConfig {
     @Configuration
     @Profile("production")
@@ -70,7 +70,7 @@ public class DomainConfig {
 
         Properties properties = new Properties();
         properties.put("hibernate.dialect", "org.hibernate.dialect.MySQL5InnoDBDialect");
-        properties.put("hibernate.show_sql", true);
+        // properties.put("hibernate.show_sql", true);
         factory.setJpaProperties(properties);
 
         factory.afterPropertiesSet();

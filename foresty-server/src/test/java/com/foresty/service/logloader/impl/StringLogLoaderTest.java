@@ -1,8 +1,8 @@
-package com.foresty.loader.impl;
+package com.foresty.service.logloader.impl;
 
 import com.foresty.DomainConfig;
-import com.foresty.loader.BatchLogLoader;
-import com.foresty.loader.parser.impl.DefaultLogMessageParser;
+import com.foresty.service.logloader.BatchLogLoaderService;
+import com.foresty.service.logloader.parser.impl.DefaultLogMessageParser;
 import com.foresty.model.Event;
 import com.foresty.model.Log;
 import com.foresty.repository.EventRepository;
@@ -35,8 +35,8 @@ public class StringLogLoaderTest {
     @Autowired
     private EventRepository eventRepository;
     @Autowired
-    @Qualifier("stringLogLoader")
-    private BatchLogLoader batchLogLoader;
+    @Qualifier("stringLogLoaderService")
+    private BatchLogLoaderService batchLogLoaderService;
 
     @Before
     public void setUp() throws Exception {
@@ -55,7 +55,8 @@ public class StringLogLoaderTest {
         String log1 = log("log message 1", 1, Level.DEBUG, "event1", "id1");
         String log2 = log("log message 2", 100000, Level.DEBUG, "event1", "id1");
         String log3 = log("log message 3", 200000, Level.DEBUG, "event1", "id1");
-        this.batchLogLoader.loadLog(Joiner.on(StringLogLoader.LOG_MESSAGE_SEPARATOR).join(log1, log2, log3), "default");
+        this.batchLogLoaderService
+                .loadLog(Joiner.on(StringLogLoaderService.LOG_MESSAGE_SEPARATOR).join(log1, log2, log3), "default");
 
         List<Log> logs = this.logRepository.findAll();
         Assert.assertEquals("Should find 3 log message.", 3, logs.size());
@@ -68,10 +69,12 @@ public class StringLogLoaderTest {
         String log1 = log("log message 1", 1, Level.DEBUG, "event1", "id1");
         String log2 = log("log message 2", 100000, Level.DEBUG, "event1", "id1");
         String log3 = log("log message 3", 200000, Level.DEBUG, "event1", "id1");
-        this.batchLogLoader.loadLog(Joiner.on(StringLogLoader.LOG_MESSAGE_SEPARATOR).join(log1, log2, log3), "default");
+        this.batchLogLoaderService
+                .loadLog(Joiner.on(StringLogLoaderService.LOG_MESSAGE_SEPARATOR).join(log1, log2, log3), "default");
         String log4 = log("log message 4", 300000, Level.WARN, "event1", "id1");
         String log5 = log("log message 5", 400000, Level.DEBUG, "event1", "id1");
-        this.batchLogLoader.loadLog(Joiner.on(StringLogLoader.LOG_MESSAGE_SEPARATOR).join(log4, log5), "default");
+        this.batchLogLoaderService
+                .loadLog(Joiner.on(StringLogLoaderService.LOG_MESSAGE_SEPARATOR).join(log4, log5), "default");
 
         List<Log> logs = this.logRepository.findAll();
         Assert.assertEquals("Should find 5 log message.", 5, logs.size());

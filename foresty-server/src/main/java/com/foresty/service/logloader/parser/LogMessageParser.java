@@ -1,4 +1,4 @@
-package com.foresty.loader.parser;
+package com.foresty.service.logloader.parser;
 
 import com.foresty.model.Log;
 

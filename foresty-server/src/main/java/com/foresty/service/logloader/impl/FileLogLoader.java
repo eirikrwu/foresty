@@ -1,4 +1,4 @@
-package com.foresty.loader.impl;
+package com.foresty.service.logloader.impl;
 
 /**
  * Created by ericwu on 3/15/14.

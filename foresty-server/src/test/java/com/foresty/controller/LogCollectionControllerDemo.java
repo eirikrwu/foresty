@@ -1,6 +1,6 @@
 package com.foresty.controller;
 
-import com.foresty.loader.impl.StringLogLoader;
+import com.foresty.service.logloader.impl.StringLogLoaderService;
 import com.google.common.collect.Maps;
 import org.apache.http.client.fluent.Request;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -14,9 +14,9 @@ import java.util.Map;
 public class LogCollectionControllerDemo {
     @Test
     public void testSendLog() throws Exception {
-        String logs = "log message 1 __1000000,,1,,request,,log" + StringLogLoader.LOG_MESSAGE_SEPARATOR
-                + "log message 1 __1000000,,1,,request,,test" + StringLogLoader.LOG_MESSAGE_SEPARATOR
-                + "log message 1 __1000000,,1,,request,,log" + StringLogLoader.LOG_MESSAGE_SEPARATOR
+        String logs = "log message 1 __1000000,,1,,request,,log" + StringLogLoaderService.LOG_MESSAGE_SEPARATOR
+                + "log message 1 __1000000,,1,,request,,test" + StringLogLoaderService.LOG_MESSAGE_SEPARATOR
+                + "log message 1 __1000000,,1,,request,,log" + StringLogLoaderService.LOG_MESSAGE_SEPARATOR
                 + "log message 2 __2000000,,2,,quartz,,job1";
         Map<String, String> data = Maps.newHashMap();
         data.put("log", logs);
