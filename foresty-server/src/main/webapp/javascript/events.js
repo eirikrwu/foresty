@@ -1,14 +1,18 @@
 $(document).ready(function () {
+    // build log dialog
+    $("#log-frame-container").dialog({
+        height: $(window).height() * 0.9,
+        width: $(window).width() * 0.8,
+        title: "Log",
+        modal: true
+    });
+
     // hide log-frame by default
-    closeLogView();
+    $("#log-frame-container").dialog("close");
 
     // show events
     showEvents(null, null);
 });
-
-function closeLogView() {
-    $('#log-frame').hide();
-}
 
 //function showEventGroups() {
 //    $.getJSON("q/event-groups", function (data) {
@@ -79,7 +83,8 @@ function showEvents(name, level) {
         } else {
             eventTable.on('dynatable:afterUpdate', function (event, rows) {
                 $(".clickableRow", eventTable).click(function () {
-                    $('#log-frame').show();
+                    $("#log-frame-container").dialog("open");
+
                     var eventId = $(this).attr("eventId");
                     $('#log-frame').attr('src', "log.html?eventId=" + eventId);
                 });
@@ -149,5 +154,12 @@ function eventRowWriter(rowIndex, record, columns, cellWriter) {
         tr += cellWriter(columns[i], record);
     }
 
-    return '<tr class="clickableRow level' + record['highestLevel'] + '" eventid=' + record.id + '>' + tr + '</tr>';
+    var levelClass = "";
+    if (record['highestLevel'].localeCompare("WARN") == 0) {
+        levelClass = "warning";
+    } else if (record['highestLevel'].localeCompare("ERROR") == 0 || record['highestLevel'].localeCompare("FATAL") == 0) {
+        levelClass = "danger";
+    }
+
+    return '<tr class="clickableRow ' + levelClass + '" eventid=' + record.id + '>' + tr + '</tr>';
 }

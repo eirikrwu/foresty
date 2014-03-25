@@ -4,75 +4,82 @@
 
     <title>Foresty</title>
 
-    <script type="text/javascript" src="javascript/jquery-1.7.2.min.js"></script>
+    <!-- <script type="text/javascript" src="javascript/jquery-1.7.2.min.js"></script> -->
+
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+    <script src="//code.jquery.com/jquery-1.7.2.js"></script>
+    <script src="//code.jquery.com/ui/1.9.2/jquery-ui.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/jquery-ui-1.9.2.custom.css">
+
     <script type="text/javascript" src="javascript/jquery.dynatable.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/jquery.dynatable.css">
+
     <script type="text/javascript" src="javascript/moment.min.js"></script>
+
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 
     <script type="text/javascript" src="javascript/events.js"></script>
 
-    <link rel="stylesheet" type="text/css" href="css/jquery.dynatable.css">
-
     <style>
-        .leveldebug .columnhighestLevel {
-            background: lightskyblue;
-        }
+        /*.leveldebug .columnhighestLevel {*/
+            /*background-color: lightskyblue !important;*/
+        /*}*/
 
-        .levelinfo .columnhighestLevel {
-            background: limegreen;
-        }
+        /*.levelinfo .columnhighestLevel {*/
+            /*background-color: limegreen !important;*/
+        /*}*/
 
-        .levelwarn .columnhighestLevel {
-            background: yellow;
-        }
+        /*.levelwarn .columnhighestLevel {*/
+            /*background-color: yellow !important;*/
+        /*}*/
 
-        .levelerror .columnhighestLevel {
-            background: orange;
-        }
+        /*.levelerror .columnhighestLevel {*/
+            /*background-color: orange !important;*/
+        /*}*/
 
-        .levelfatal .columnhighestLevel {
-            background: red;
-        }
-
-        tr {
-            text-align: left;
-        }
+        /*.levelfatal .columnhighestLevel {*/
+            /*background-color: red !important;*/
+        /*}*/
 
         #log-frame {
-            position: fixed;
-            bottom: 0;
-            right: 0;
-            height: 100%;
-            width: 75%;
-            z-index: 999;
-            background: white;
+            /*position: fixed;*/
+            /*bottom: 0;*/
+            /*right: 0;*/
+            height: 99%;
+            width: 99%;
         }
     </style>
 </head>
 <body>
 <div id="log-table-container">
     <!--<table id="event-group-table">-->
-        <!--<thead>-->
-        <!--<tr>-->
-            <!--<th>Name</th>-->
-        <!--</tr>-->
-        <!--</thead>-->
-        <!--<tbody>-->
-        <!--</tbody>-->
+    <!--<thead>-->
+    <!--<tr>-->
+    <!--<th>Name</th>-->
+    <!--</tr>-->
+    <!--</thead>-->
+    <!--<tbody>-->
+    <!--</tbody>-->
     <!--</table>-->
-    <table id="event-table">
+
+    <table id="event-table" class="table table-hover table-condensed">
         <thead>
         <tr>
-            <th>Name</th>
-            <th>Start Time</th>
-            <th>Timespan</th>
             <th>Highest Level</th>
+            <th>Start Time</th>
+            <th>Name</th>
+            <th>Timespan</th>
             <th>Operation</th>
         </tr>
         </thead>
         <tbody>
         </tbody>
     </table>
-    <iframe id="log-frame"></iframe>
+    <div id="log-frame-container">
+        <iframe id="log-frame" frameBorder="0"></iframe>
+    </div>
 </div>
 </body>
 </html>

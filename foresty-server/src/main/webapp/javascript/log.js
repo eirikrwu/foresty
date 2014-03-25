@@ -2,11 +2,6 @@
  * Created by EveningSun on 14-3-20.
  */
 $(document).ready(function () {
-    // bind button handler
-    $('#close-self-button').click(function (e) {
-        parent.closeLogView();
-    });
-
     // show logs
     var eventId = getUrlQueryParameters()["eventId"];
     showLog(eventId);
