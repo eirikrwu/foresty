@@ -49,6 +49,12 @@ function showLog(eventId) {
             dynatable.process();
         } else {
             logTable.dynatable({
+                inputs: {
+                    searchTarget: $('#log-table-search-container'),
+                    searchPlacement: 'append',
+                    perPageTarget: $('#log-table-per-page-container'),
+                    perPagePlacement: 'append'
+                },
                 dataset: {
                     records: data,
                     perPageDefault: 1000,

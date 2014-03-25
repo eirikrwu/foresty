@@ -1202,15 +1202,22 @@
     this.create = function() {
       var $search = $('<input />', {
             type: 'search',
+            'class': 'form-control',
             id: 'dynatable-query-search-' + obj.element.id,
             'data-dynatable-query': 'search',
             value: settings.dataset.queries.search
           }),
-          $searchSpan = $('<span></span>', {
+          $searchLabel = $('<label></label>', {
+            'class': 'col-md-2 col-sm-2 control-label',
+             text: 'Search: '
+          }),
+          $searchFieldDiv = $('<div></div>', {
+            'class': 'col-md-10 col-sm-10'
+          }).append($search),
+          $searchSpan = $('<div></div>', {
             id: 'dynatable-search-' + obj.element.id,
-            'class': 'dynatable-search',
-            text: 'Search: '
-          }).append($search);
+            'class': 'dynatable-search form-group'
+          }).append($searchLabel).append($searchFieldDiv);
 
       $search
         .bind(settings.inputs.queryEvent, function() {
@@ -1283,7 +1290,7 @@
     this.create = function() {
       var $select = $('<select>', {
             id: 'dynatable-per-page-' + obj.element.id,
-            'class': 'dynatable-per-page-select'
+            'class': 'dynatable-per-page-select form-control'
           });
 
       for (var i = 0, len = settings.dataset.perPageOptions.length; i < len; i++) {
@@ -1297,9 +1304,12 @@
         obj.process();
       });
 
-      return $('<span />', {
-        'class': 'dynatable-per-page'
-      }).append("<span class='dynatable-per-page-label'>" + settings.inputs.perPageText + "</span>").append($select);
+      return $('<div />', {
+        'class': 'dynatable-per-page form-group'
+      }).append("<label class='col-md-2 col-sm-2 dynatable-per-page-label control-label'>" + settings.inputs.perPageText + "</label>")
+          .append($('<div></div>', {
+              'class': 'col-md-3 col-sm-4'
+          }).append($select));
     };
 
     this.attach = function() {

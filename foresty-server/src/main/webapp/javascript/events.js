@@ -103,6 +103,12 @@ function showEvents(name, level) {
             });
 
             eventTable.dynatable({
+                inputs: {
+                    searchTarget: $('#event-table-search-container'),
+                    searchPlacement: 'append',
+                    perPageTarget: $('#event-table-per-page-container'),
+                    perPagePlacement: 'append'
+                },
                 dataset: {
                     records: data,
                     perPageDefault: 1000,

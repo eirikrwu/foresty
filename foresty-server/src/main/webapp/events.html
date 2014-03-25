@@ -1,6 +1,8 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>Foresty</title>
 
@@ -24,23 +26,23 @@
 
     <style>
         /*.leveldebug .columnhighestLevel {*/
-            /*background-color: lightskyblue !important;*/
+        /*background-color: lightskyblue !important;*/
         /*}*/
 
         /*.levelinfo .columnhighestLevel {*/
-            /*background-color: limegreen !important;*/
+        /*background-color: limegreen !important;*/
         /*}*/
 
         /*.levelwarn .columnhighestLevel {*/
-            /*background-color: yellow !important;*/
+        /*background-color: yellow !important;*/
         /*}*/
 
         /*.levelerror .columnhighestLevel {*/
-            /*background-color: orange !important;*/
+        /*background-color: orange !important;*/
         /*}*/
 
         /*.levelfatal .columnhighestLevel {*/
-            /*background-color: red !important;*/
+        /*background-color: red !important;*/
         /*}*/
 
         #log-frame {
@@ -53,32 +55,42 @@
     </style>
 </head>
 <body>
-<div id="log-table-container">
-    <!--<table id="event-group-table">-->
-    <!--<thead>-->
-    <!--<tr>-->
-    <!--<th>Name</th>-->
-    <!--</tr>-->
-    <!--</thead>-->
-    <!--<tbody>-->
-    <!--</tbody>-->
-    <!--</table>-->
+<div class="container">
+    <div class="row form-horizontal">
+        <div id="event-table-per-page-container" class="col-sm-6 col-md-6"></div>
+        <div id="event-table-search-container" class="col-sm-6 col-md-6"></div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div id="log-table-container">
+                <!--<table id="event-group-table">-->
+                <!--<thead>-->
+                <!--<tr>-->
+                <!--<th>Name</th>-->
+                <!--</tr>-->
+                <!--</thead>-->
+                <!--<tbody>-->
+                <!--</tbody>-->
+                <!--</table>-->
 
-    <table id="event-table" class="table table-hover table-condensed">
-        <thead>
-        <tr>
-            <th>Highest Level</th>
-            <th>Start Time</th>
-            <th>Name</th>
-            <th>Timespan</th>
-            <th>Operation</th>
-        </tr>
-        </thead>
-        <tbody>
-        </tbody>
-    </table>
-    <div id="log-frame-container">
-        <iframe id="log-frame" frameBorder="0"></iframe>
+                <table id="event-table" class="table table-hover table-condensed">
+                    <thead>
+                    <tr>
+                        <th>Highest Level</th>
+                        <th>Start Time</th>
+                        <th>Name</th>
+                        <th>Timespan</th>
+                        <th>Operation</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                <div id="log-frame-container">
+                    <iframe id="log-frame" frameBorder="0"></iframe>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 </body>
