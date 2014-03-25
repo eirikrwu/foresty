@@ -18,36 +18,34 @@
     <script type="text/javascript" src="javascript/log.js"></script>
 
     <style>
-        .leveldebug .columnLevel {
-            background: lightskyblue;
+        body {
+            margin-top: 24px;
         }
 
-        .levelinfo .columnLevel {
-            background: limegreen;
-        }
+        /*.leveldebug .columnLevel {*/
+            /*background: lightskyblue;*/
+        /*}*/
 
-        .levelwarn .columnLevel {
-            background: yellow;
-        }
+        /*.levelinfo .columnLevel {*/
+            /*background: limegreen;*/
+        /*}*/
 
-        .levelerror .columnLevel {
-            background: orange;
-        }
+        /*.levelwarn .columnLevel {*/
+            /*background: yellow;*/
+        /*}*/
 
-        .levelfatal .columnLevel {
-            background: red;
-        }
+        /*.levelerror .columnLevel {*/
+            /*background: orange;*/
+        /*}*/
+
+        /*.levelfatal .columnLevel {*/
+            /*background: red;*/
+        /*}*/
 
         table {
-            width: 100%;
-        }
-
-        tr {
-            text-align: left;
-        }
-
-        td {
-            vertical-align: top;
+            table-layout: fixed;
+            font-size: 14px;
+            word-wrap: break-word;
         }
     </style>
 </head>
@@ -62,8 +60,9 @@
             <table id="log-table" class="table table-hover table-condensed">
                 <thead>
                 <tr>
-                    <th>Level</th>
-                    <th>Message</th>
+                    <th data-dynatable-column="level" class="col-xs-1">Level</th>
+                    <th data-dynatable-column="timestamp" class="col-xs-2">Time</th>
+                    <th data-dynatable-column="message"class="col-xs-9">Message</th>
                 </tr>
                 </thead>
                 <tbody>

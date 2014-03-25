@@ -2,6 +2,21 @@
  * Created by EveningSun on 14-3-20.
  */
 $(document).ready(function () {
+    // handle ESC
+    $(document).keydown(function (e) {
+        if (e.keyCode == 70 && e.shiftKey && e.ctrlKey) {
+            $('#dynatable-query-search-log-table').focus();
+        }
+
+        if (e.keyCode == 27) {
+            if ($('#dynatable-query-search-log-table').is(":focus")) {
+                $('body').focus();
+            } else {
+                window.parent.closeLogDialog();
+            }
+        }
+    });
+
     // show logs
     var eventId = getUrlQueryParameters()["eventId"];
     showLog(eventId);
@@ -23,6 +38,8 @@ function showLog(eventId) {
         // pre*processing data
         for (var i = 0; i < data.length; i++) {
             var log = data[i];
+            log['timestamp'] = moment(log['timestamp']).format("MM/DD HH:mm:ss:SSS");
+
             switch (log['level']) {
                 case (10000):
                     log['level'] = "DEBUG";
@@ -102,5 +119,16 @@ function logRowWriter(rowIndex, record, columns, cellWriter) {
         tr += cellWriter(columns[i], record);
     }
 
-    return '<tr class="level' + record['level'] + '"' + '>' + tr + '</tr>';
+    var levelClass = "";
+    var level = record['level'];
+    if (level.localeCompare("INFO") == 0) {
+        levelClass = "info";
+    } else if (level.localeCompare("WARN") == 0) {
+        levelClass = "warning";
+    } else if (level.localeCompare("ERROR") == 0 || level.localeCompare("FATAL") == 0) {
+        levelClass = "danger";
+    }
+
+//    return '<tr class="level' + record['level'] + '"' + '>' + tr + '</tr>';
+    return '<tr class="' + levelClass + '"' + '>' + tr + '</tr>';
 }

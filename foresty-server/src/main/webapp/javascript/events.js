@@ -1,45 +1,36 @@
 $(document).ready(function () {
+    // bind Alt+F handler
+    $(document).keydown(function (e) {
+        if (e.keyCode == 70 && e.shiftKey && e.ctrlKey) {
+            $('#dynatable-query-search-event-table').focus();
+        }
+        if (e.keyCode == 27) {
+            $('table#event-table > tbody').focus();
+            $(document).scrollTop(0);
+        }
+    });
+
     // build log dialog
     $("#log-frame-container").dialog({
         height: $(window).height() * 0.9,
-        width: $(window).width() * 0.8,
+        width: $(window).width() * 0.9,
         title: "Log",
-        modal: true
+        modal: true,
+        close: function () {
+            $('table#event-table > tbody').focus();
+        }
     });
 
     // hide log-frame by default
-    $("#log-frame-container").dialog("close");
+    closeLogDialog();
 
     // show events
     showEvents(null, null);
 });
 
-//function showEventGroups() {
-//    $.getJSON("q/event-groups", function (data) {
-//        var eventGroupTable = $('#event-group-table');
-//        var dynatable = eventGroupTable.data('dynatable');
-//        if (dynatable != null) {
-//            dynatable.settings.dataset.originalRecords = data;
-//            dynatable.process();
-//        } else {
-//            eventGroupTable.on('dynatable:afterUpdate', function(event, rows) {
-//                $(".clickableRow", eventGroupTable).click(function() {
-//                    var eventName = $(this).attr("eventname");
-//                    showEvent(eventName);
-//                });
-//            });
-//
-//            eventGroupTable.dynatable({
-//                dataset: {
-//                    records: data
-//                },
-//                writers: {
-//                    _rowWriter: eventGroupRowWriter
-//                }
-//            });
-//        }
-//    });
-//}
+function closeLogDialog() {
+    $("#log-frame-container").dialog("close");
+}
 
 function showEvents(name, level) {
     var url = "q/events?";
@@ -86,7 +77,11 @@ function showEvents(name, level) {
                     $("#log-frame-container").dialog("open");
 
                     var eventId = $(this).attr("eventId");
-                    $('#log-frame').attr('src', "log.html?eventId=" + eventId);
+                    $('#log-frame').attr('src', "log.html?eventId=" + eventId + '&?sorts[timestamp]=1');
+
+                    setTimeout(function () {
+                        $('#log-frame')[0].contentWindow.focus();
+                    }, 100);
                 });
 
                 $('.delete-event-button').click(function (e) {
@@ -100,6 +95,19 @@ function showEvents(name, level) {
                         }
                     })
                 });
+
+                // bind key navigator
+                $('table#event-table > tbody tr').keynavigator({
+                    keys: {
+                        13: function ($el, cellIndex, e) {
+                            $el.trigger('click');
+                        }
+                    }
+                });
+
+                // focus on table
+                $('table#event-table > tbody').focus();
+                $(document).scrollTop(0);
             });
 
             eventTable.dynatable({
