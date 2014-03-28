@@ -7,9 +7,12 @@ import com.foresty.repository.EventRepository;
 import com.foresty.repository.LogRepository;
 import com.foresty.service.EventService;
 import com.foresty.service.EventServiceException;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,16 +50,26 @@ public class LogReportController {
 
     @RequestMapping(value = "/events", method = RequestMethod.GET)
     public @ResponseBody
-    List<Event> getEventsByCriterion(@RequestParam(value = "name", required = false) String eventName,
-                                     @RequestParam(value = "level", required = false) Integer minHigestLevel) {
+    PagedResults<Event> getEventsByCriterion(@RequestParam(value = "name", required = false) String eventName,
+                                             @RequestParam(value = "queries[level]", required = false) Integer minHigestLevel,
+                                             @RequestParam(value = "page", required = true) Integer pageNumber,
+                                             @RequestParam(value = "perPage", required = true) Integer pageSize) {
+        // the request page is 1-based
+        pageNumber--;
+        Preconditions.checkArgument(pageNumber >= 0);
+        Preconditions.checkArgument(pageSize >= 0 && pageSize <= 10000);
+
         EventRepository.EventCriteria criteria = new EventRepository.EventCriteria();
         criteria.setName(eventName);
         criteria.setMinHighestLevel(minHigestLevel);
         criteria.setOrderBy("startTime");
         criteria.setOrderDesc(true);
 
+        PageRequest pageRequest = new PageRequest(pageNumber, pageSize);
         try {
-            return this.eventRepository.getEventsByCriterion(criteria);
+            Page<Event> page = this.eventRepository.getEventsByCriterion(criteria, pageRequest);
+
+            return new PagedResults(page);
         } catch (DataAccessException e) {
             throw new ControllerRuntimeException("Error occurred while trying to get events: " + e.getMessage(), e);
         }

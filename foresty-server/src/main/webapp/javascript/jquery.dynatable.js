@@ -1306,9 +1306,9 @@
 
       return $('<div />', {
         'class': 'dynatable-per-page form-group'
-      }).append("<label class='col-md-2 col-sm-2 dynatable-per-page-label control-label'>" + settings.inputs.perPageText + "</label>")
+      }).append("<label class='col-md-6 col-sm-6 dynatable-per-page-label control-label'>" + settings.inputs.perPageText + "</label>")
           .append($('<div></div>', {
-              'class': 'col-md-3 col-sm-4'
+              'class': 'col-md-6 col-sm-6'
           }).append($select));
     };
 

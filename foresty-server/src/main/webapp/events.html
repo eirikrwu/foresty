@@ -27,25 +27,19 @@
     <script type="text/javascript" src="javascript/events.js"></script>
 
     <style>
-        /*.leveldebug .columnhighestLevel {*/
-        /*background-color: lightskyblue !important;*/
-        /*}*/
+        .normalCell {
+            color: #dddddd;
+        }
 
-        /*.levelinfo .columnhighestLevel {*/
-        /*background-color: limegreen !important;*/
-        /*}*/
+        .warningCell {
+            color: orange;
+            font-weight: bold;
+        }
 
-        /*.levelwarn .columnhighestLevel {*/
-        /*background-color: yellow !important;*/
-        /*}*/
-
-        /*.levelerror .columnhighestLevel {*/
-        /*background-color: orange !important;*/
-        /*}*/
-
-        /*.levelfatal .columnhighestLevel {*/
-        /*background-color: red !important;*/
-        /*}*/
+        .errorCell {
+            color: red;
+            font-weight: bold;
+        }
 
         body {
             padding-top: 84px;
@@ -53,6 +47,14 @@
 
         table {
             word-wrap: break-word;
+            table-layout: fixed;
+        }
+
+        td, th {
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            word-break: break-all;
+            overflow: hidden;
         }
 
         #log-frame {
@@ -85,9 +87,30 @@
     </div>
 </div>
 <div class="container">
-    <div class="row form-horizontal">
-        <div id="event-table-per-page-container" class="col-sm-6 col-md-6"></div>
-        <div id="event-table-search-container" class="col-sm-6 col-md-6"></div>
+    <div class="row">
+        <div class="form-horizontal">
+            <div class="col-sm-3 col-md-3">
+                <div class="form-group">
+                    <label for="event-table-minimum-level" class="control-label col-sm-4">Level:</label>
+                    <div class="col-sm-6">
+                        <select id="event-table-minimum-level" name="level" class="form-control">
+                            <option value="10000">DEBUG</option>
+                            <option value="20000">INFO</option>
+                            <option value="30000">WARN</option>
+                            <option value="40000">ERROR</option>
+                            <option value="50000">FATAL</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div id="event-table-per-page-container" class="col-sm-offset-6 col-sm-3"></div>
+            <!--<div id="event-table-search-container" class="col-sm-6 col-md-6"></div>-->
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-horizontal">
+
+        </div>
     </div>
     <div class="row">
         <div class="col-md-12 col-lg-12">
@@ -105,11 +128,11 @@
                 <table id="event-table" class="table table-hover table-condensed">
                     <thead>
                     <tr>
-                        <th data-dynatable-column="highestLevel">Level</th>
-                        <th data-dynatable-column="startTime">Time</th>
-                        <th data-dynatable-column="name">Event</th>
-                        <th data-dynatable-column="timespan">Span</th>
-                        <th>Operation</th>
+                        <th data-dynatable-column="highestLevel" class="col-xs-1">Level</th>
+                        <th data-dynatable-column="startTime" class="col-xs-2">Time</th>
+                        <th data-dynatable-column="name" class="col-xs-7">Event</th>
+                        <th data-dynatable-column="timespan" class="col-xs-1">Span</th>
+                        <th class="col-xs-1">Operation</th>
                     </tr>
                     </thead>
                     <tbody>

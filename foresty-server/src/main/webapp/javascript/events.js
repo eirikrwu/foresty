@@ -25,26 +25,19 @@ $(document).ready(function () {
     closeLogDialog();
 
     // show events
-    showEvents(null, null);
+    showEvents();
 });
 
 function closeLogDialog() {
     $("#log-frame-container").dialog("close");
 }
 
-function showEvents(name, level) {
-    var url = "q/events?";
-    if (name != null) {
-        url += "name=" + name;
-    }
-    if (level != null) {
-        url += "&level=" + level;
-    }
-
-    $.getJSON(url, function (data) {
+function showEvents() {
+    var eventTable = $('#event-table');
+    eventTable.on('dynatable:ajax:success', function (e, data) {
         // pre-process data first
-        for (var i = 0; i < data.length; i++) {
-            var event = data[i];
+        for (var i = 0; i < data.records.length; i++) {
+            var event = data.records[i];
             event['startTime'] = moment(event['startTime']).format("MM/DD HH:mm:ss:SSS");
 
             switch (event['highestLevel']) {
@@ -65,68 +58,68 @@ function showEvents(name, level) {
                     break;
             }
         }
+    });
 
-        var eventTable = $('#event-table');
-        var dynatable = eventTable.data('dynatable');
-        if (dynatable != null) {
-            dynatable.settings.dataset.originalRecords = data;
-            dynatable.process();
-        } else {
-            eventTable.on('dynatable:afterUpdate', function (event, rows) {
-                $(".clickableRow", eventTable).click(function () {
-                    $("#log-frame-container").dialog("open");
+    eventTable.on('dynatable:afterUpdate', function (event, rows) {
+        $(".clickableRow", eventTable).click(function () {
+            $("#log-frame-container").dialog("open");
 
-                    var eventId = $(this).attr("eventId");
-                    $('#log-frame').attr('src', "log.html?eventId=" + eventId + '&?sorts[timestamp]=1');
+            var eventId = $(this).attr("eventId");
+            $('#log-frame').attr('src', "log.html?eventId=" + eventId + '&?sorts[timestamp]=1');
 
-                    setTimeout(function () {
-                        $('#log-frame')[0].contentWindow.focus();
-                    }, 100);
-                });
+            setTimeout(function () {
+                $('#log-frame')[0].contentWindow.focus();
+            }, 100);
+        });
 
-                $('.delete-event-button').click(function (e) {
-                    e.stopPropagation();
-                    var url = "q/events/" + $(this).attr("eventid");
-                    $.ajax({
-                        url: url,
-                        type: 'DELETE',
-                        success: function (data, textStatus, jaXHR) {
-                            showEvents(null, null);
-                        }
-                    })
-                });
-
-                // bind key navigator
-                $('table#event-table > tbody tr').keynavigator({
-                    keys: {
-                        13: function ($el, cellIndex, e) {
-                            $el.trigger('click');
-                        }
-                    }
-                });
-
-                // focus on table
-                $('table#event-table > tbody').focus();
-                $(document).scrollTop(0);
-            });
-
-            eventTable.dynatable({
-                inputs: {
-                    searchTarget: $('#event-table-search-container'),
-                    searchPlacement: 'append',
-                    perPageTarget: $('#event-table-per-page-container'),
-                    perPagePlacement: 'append'
-                },
-                dataset: {
-                    records: data,
-                    perPageDefault: 1000,
-                    perPageOptions: [100, 200, 500, 1000]
-                },
-                writers: {
-                    _rowWriter: eventRowWriter,
-                    _cellWriter: eventCellWriter
+        $('.delete-event-button').click(function (e) {
+            e.stopPropagation();
+            var url = "q/events/" + $(this).attr("eventid");
+            $.ajax({
+                url: url,
+                type: 'DELETE',
+                success: function (data, textStatus, jaXHR) {
+                    showEvents(null, null);
                 }
-            });
+            })
+        });
+
+        // bind key navigator
+        $('table#event-table > tbody tr').keynavigator({
+            keys: {
+                13: function ($el, cellIndex, e) {
+                    $el.trigger('click');
+                }
+            }
+        });
+
+        // focus on table
+        $('table#event-table > tbody').focus();
+        $(document).scrollTop(0);
+    });
+
+    eventTable.dynatable({
+        inputs: {
+            searchTarget: $('#event-table-search-container'),
+            searchPlacement: 'append',
+            perPageTarget: $('#event-table-per-page-container'),
+            perPagePlacement: 'append',
+            queries: $('#event-table-minimum-level')
+        },
+        features: {
+            search: false
+        },
+        dataset: {
+            ajax: true,
+            ajaxUrl: url = "q/events?",
+            ajaxOnLoad: true,
+            records: [],
+            perPageDefault: 1000,
+            perPageOptions: [100, 200, 500, 1000]
+        },
+        writers: {
+            _rowWriter: eventRowWriter,
+            _cellWriter: eventCellWriter
         }
     });
 }
@@ -155,7 +148,19 @@ function eventCellWriter(column, record) {
         td += '"';
     }
 
-    td += 'class="column' + column.id + '"';
+//    td += 'class="column' + column.id + '"';
+    if (column.id.localeCompare("timespan") == 0) {
+        html += " ms";
+
+        var timespan = record['timespan'];
+        if (timespan < 200) {
+            td += 'class="normalCell"';
+        } else if (timespan < 1000) {
+            td += 'class="warningCell"';
+        } else {
+            td += 'class="errorCell"';
+        }
+    }
 
     return td + '>' + html + '</td>';
 }
