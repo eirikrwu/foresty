@@ -13,6 +13,9 @@ public interface EventRepository extends EventRepositoryCustom, JpaRepository<Ev
     @Query("SELECT DISTINCT (e.name) FROM Event e")
     public List<String> getEventNames();
 
+    @Query("SELECT COUNT(e) FROM Event e")
+    public Long getTotalEventCount();
+
     public static class EventCriteria {
         private String name;
         private Integer minHighestLevel;

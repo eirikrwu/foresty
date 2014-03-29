@@ -51,7 +51,8 @@ public class LogReportController {
     @RequestMapping(value = "/events", method = RequestMethod.GET)
     public @ResponseBody
     PagedResults<Event> getEventsByCriterion(@RequestParam(value = "name", required = false) String eventName,
-                                             @RequestParam(value = "queries[level]", required = false) Integer minHigestLevel,
+                                             @RequestParam(value = "queries[level]", required = false)
+                                             Integer minHigestLevel,
                                              @RequestParam(value = "page", required = true) Integer pageNumber,
                                              @RequestParam(value = "perPage", required = true) Integer pageSize) {
         // the request page is 1-based
@@ -67,9 +68,10 @@ public class LogReportController {
 
         PageRequest pageRequest = new PageRequest(pageNumber, pageSize);
         try {
+            long totalEventCount = this.eventRepository.getTotalEventCount();
             Page<Event> page = this.eventRepository.getEventsByCriterion(criteria, pageRequest);
 
-            return new PagedResults(page);
+            return new PagedResults(page, totalEventCount);
         } catch (DataAccessException e) {
             throw new ControllerRuntimeException("Error occurred while trying to get events: " + e.getMessage(), e);
         }

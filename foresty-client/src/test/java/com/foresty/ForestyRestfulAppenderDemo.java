@@ -24,7 +24,7 @@ public class ForestyRestfulAppenderDemo {
                     ForestyLog4j.exitEvent();
 
                     try {
-                        Thread.sleep(500 + RANDOM.nextInt(3000));
+                        Thread.sleep(100 + RANDOM.nextInt(200));
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -36,13 +36,13 @@ public class ForestyRestfulAppenderDemo {
             @Override public void run() {
                 while (true) {
                     ForestyLog4j.beginEvent("event2");
-                    LOGGER.info("log message 4");
+                    LOGGER.warn("log message 4");
                     LOGGER.info("log message 5");
                     LOGGER.info("log message 6");
                     ForestyLog4j.exitEvent();
 
                     try {
-                        Thread.sleep(500 + RANDOM.nextInt(3000));
+                        Thread.sleep(100 + RANDOM.nextInt(300));
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }

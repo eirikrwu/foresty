@@ -9,7 +9,7 @@ import java.util.List;
  */
 public class PagedResults<T> {
     private List<T> records;
-    private int queryRecordCount;
+    private long queryRecordCount;
     private long totalRecordCount;
 
     public PagedResults() {
@@ -21,6 +21,12 @@ public class PagedResults<T> {
         this.totalRecordCount = page.getTotalElements();
     }
 
+    public PagedResults(Page<T> page, long total) {
+        this.records = page.getContent();
+        this.queryRecordCount = page.getTotalElements();
+        this.totalRecordCount = total;
+    }
+
     public List<T> getRecords() {
         return records;
     }
@@ -29,11 +35,11 @@ public class PagedResults<T> {
         this.records = records;
     }
 
-    public int getQueryRecordCount() {
+    public long getQueryRecordCount() {
         return queryRecordCount;
     }
 
-    public void setQueryRecordCount(int queryRecordCount) {
+    public void setQueryRecordCount(long queryRecordCount) {
         this.queryRecordCount = queryRecordCount;
     }
 
