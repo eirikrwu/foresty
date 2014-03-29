@@ -3,6 +3,7 @@ package com.foresty.repository.impl;
 import com.foresty.model.Event;
 import com.foresty.repository.EventRepository;
 import com.foresty.repository.EventRepositoryCustom;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -13,6 +14,8 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
+import javax.persistence.TemporalType;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -25,6 +28,12 @@ public class EventRepositoryImpl implements EventRepositoryCustom {
 
     @Override
     public Page<Event> getEventsByCriterion(EventRepository.EventCriteria criteria, Pageable pageable) {
+        Preconditions.checkNotNull(criteria);
+        if (pageable != null) {
+            Preconditions.checkArgument(pageable.getPageNumber() >= 0);
+            Preconditions.checkArgument(pageable.getPageSize() > 0);
+        }
+
         EntityManager entityManager = this.entityManagerFactory.createEntityManager();
         try {
             List<Object> parameters = Lists.newArrayList();
@@ -36,6 +45,14 @@ public class EventRepositoryImpl implements EventRepositoryCustom {
             if (criteria.getMinHighestLevel() != null) {
                 parameters.add(criteria.getMinHighestLevel());
                 queryStringBuilder.append(" AND e.highestLevel >= ?").append(parameters.size());
+            }
+            if (criteria.getMinStartTime() != null) {
+                parameters.add(criteria.getMinStartTime());
+                queryStringBuilder.append(" AND e.startTime >= ?").append(parameters.size());
+            }
+            if (criteria.getMaxStartTime() != null) {
+                parameters.add(criteria.getMaxStartTime());
+                queryStringBuilder.append(" AND e.startTime <= ?").append(parameters.size());
             }
             if (criteria.getOrderBy() != null) {
                 queryStringBuilder.append(" ORDER BY e.").append(criteria.getOrderBy());
@@ -53,8 +70,10 @@ public class EventRepositoryImpl implements EventRepositoryCustom {
             // get records for this page
             Query query = createQuery(entityManager, "SELECT e FROM Event e WHERE 1 = 1", queryStringBuilder.toString(),
                     parameters);
-            query.setFirstResult(pageable.getOffset());
-            query.setMaxResults(pageable.getPageSize());
+            if (pageable != null) {
+                query.setFirstResult(pageable.getOffset());
+                query.setMaxResults(pageable.getPageSize());
+            }
             List<Event> records = Lists.newArrayList(query.getResultList());
 
             // create page object
@@ -67,7 +86,12 @@ public class EventRepositoryImpl implements EventRepositoryCustom {
     private Query createQuery(EntityManager entityManager, String select, String where, List<Object> parameters) {
         Query query = entityManager.createQuery(select + where);
         for (int i = 0; i < parameters.size(); i++) {
-            query.setParameter(i + 1, parameters.get(i));
+            Object param = parameters.get(i);
+            if (param instanceof Date) {
+                query.setParameter(i + 1, (Date) param, TemporalType.TIMESTAMP);
+            } else {
+                query.setParameter(i + 1, param);
+            }
         }
 
         return query;

@@ -4,6 +4,7 @@ import com.foresty.model.Event;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -18,6 +19,8 @@ public interface EventRepository extends EventRepositoryCustom, JpaRepository<Ev
 
     public static class EventCriteria {
         private String name;
+        private Date minStartTime;
+        private Date maxStartTime;
         private Integer minHighestLevel;
         private String orderBy;
         private boolean orderDesc;
@@ -52,6 +55,22 @@ public interface EventRepository extends EventRepositoryCustom, JpaRepository<Ev
 
         public void setOrderDesc(boolean orderDesc) {
             this.orderDesc = orderDesc;
+        }
+
+        public Date getMinStartTime() {
+            return minStartTime;
+        }
+
+        public void setMinStartTime(Date startDate) {
+            this.minStartTime = startDate;
+        }
+
+        public Date getMaxStartTime() {
+            return maxStartTime;
+        }
+
+        public void setMaxStartTime(Date endDate) {
+            this.maxStartTime = endDate;
         }
     }
 }

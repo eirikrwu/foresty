@@ -2,6 +2,7 @@ package com.foresty;
 
 import com.foresty.controller.ControllerConfig;
 import com.foresty.filter.GZipRequestFilter;
+import com.foresty.quartz.QuartzConfig;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.springframework.web.WebApplicationInitializer;
@@ -41,7 +42,7 @@ public class RestfulEndpointIntializer implements WebApplicationInitializer {
         LOGGER.info("Using profile '" + profile + "'.");
 
         AnnotationConfigWebApplicationContext applicationContext = new AnnotationConfigWebApplicationContext();
-        applicationContext.register(ControllerConfig.class);
+        applicationContext.register(ControllerConfig.class, QuartzConfig.class);
 
         ServletRegistration.Dynamic dispatcher =
                 servletContext.addServlet("dispatcher", new DispatcherServlet(applicationContext));
