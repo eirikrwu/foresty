@@ -11,10 +11,12 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.zip.GZIPOutputStream;
 
 /**
  * Created by ericwu on 3/15/14.
@@ -76,21 +78,28 @@ public class ForestyAppender extends AppenderSkeleton {
 
                 connection.setRequestMethod("PUT");
                 connection.setRequestProperty("Content-type", "application/json");
+                connection.setRequestProperty("Content-Encoding", "gzip");
                 connection.setDoOutput(true);
-                DataOutputStream os = new DataOutputStream(connection.getOutputStream());
+
+                GZIPOutputStream gzipOutputStream = new GZIPOutputStream(connection.getOutputStream());
+                DataOutputStream dataOutputStream = new DataOutputStream(gzipOutputStream);
                 try {
-                    os.writeBytes(new ObjectMapper().writeValueAsString(logRequest));
-                    os.flush();
+                    dataOutputStream.writeBytes(new ObjectMapper().writeValueAsString(logRequest));
+                    dataOutputStream.flush();
+                    gzipOutputStream.flush();
                 } finally {
-                    os.close();
+                    try {
+                        dataOutputStream.close();
+                    } finally {
+                        gzipOutputStream.close();
+                    }
                 }
 
                 int responseCode = connection.getResponseCode();
                 if (responseCode != 200) {
-                    System.err.println(
-                            "Error occurred while sending log message to foresty server. Returned status code is " +
-                                    responseCode);
-                    System.err.println("Because of the error, some log messages have been dropped silently.");
+                    System.err.println("[" + new Date().getTime() +
+                            "] Error occurred while sending log message to foresty server. Returned status code is " +
+                            responseCode + ". Some log messages have been dropped silently.");
                 }
             } catch (IOException e) {
                 //FIXME: handle error

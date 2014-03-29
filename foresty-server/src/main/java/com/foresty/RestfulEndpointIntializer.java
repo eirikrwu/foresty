@@ -1,12 +1,14 @@
 package com.foresty;
 
 import com.foresty.controller.ControllerConfig;
+import com.foresty.filter.GZipRequestFilter;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 
+import javax.servlet.FilterRegistration;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
@@ -45,5 +47,9 @@ public class RestfulEndpointIntializer implements WebApplicationInitializer {
                 servletContext.addServlet("dispatcher", new DispatcherServlet(applicationContext));
         dispatcher.setLoadOnStartup(1);
         dispatcher.addMapping("/q/*");
+
+        FilterRegistration.Dynamic gzipRequestFilter =
+                servletContext.addFilter("gzipRequestFilter", GZipRequestFilter.class);
+        gzipRequestFilter.addMappingForUrlPatterns(null, false, "/q/*");
     }
 }
