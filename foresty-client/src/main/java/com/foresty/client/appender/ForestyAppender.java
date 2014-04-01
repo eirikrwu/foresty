@@ -7,8 +7,10 @@ import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.spi.LoggingEvent;
 import org.codehaus.jackson.map.ObjectMapper;
 
+import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Date;
@@ -97,9 +99,22 @@ public class ForestyAppender extends AppenderSkeleton {
 
                 int responseCode = connection.getResponseCode();
                 if (responseCode != 200) {
-                    System.err.println("[" + new Date().getTime() +
+                    System.err.println("[" + new Date() +
                             "] Error occurred while sending log message to foresty server. Returned status code is " +
                             responseCode + ". Some log messages have been dropped silently.");
+
+                    System.err.println("What we sent is: " + logRequest);
+
+                    // read error page
+                    BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                    try {
+                        String inputLine;
+                        while ((inputLine = in.readLine()) != null) {
+                            System.err.println(inputLine);
+                        }
+                    } finally {
+                        in.close();
+                    }
                 }
             } catch (IOException e) {
                 //FIXME: handle error
