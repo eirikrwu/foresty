@@ -1,16 +1,15 @@
 package com.foresty.client.appender;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.apache.commons.codec.binary.Base64OutputStream;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.spi.LoggingEvent;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Date;
@@ -67,6 +66,18 @@ public class ForestyAppender extends AppenderSkeleton {
                 loggings.add(log);
             }
             String logs = Joiner.on(LOG_MESSAGE_SEPARATOR).join(loggings);
+
+            // encode logs into base 64
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            Base64OutputStream base64OutputStream = new Base64OutputStream(byteArrayOutputStream);
+            try {
+                base64OutputStream.write(logs.getBytes(Charsets.UTF_8));
+            } catch (IOException e) {
+                System.err.println("IOError occurred while encoding log message to base64: " + e.getMessage());
+            } finally {
+                close(base64OutputStream, byteArrayOutputStream);
+            }
+            logs = byteArrayOutputStream.toString();
 
             Map<String, String> logRequest = Maps.newHashMap();
             logRequest.put("log", logs);
@@ -209,5 +220,17 @@ public class ForestyAppender extends AppenderSkeleton {
 
     public void setFlushInterval(int flushInterval) {
         this.flushInterval = flushInterval;
+    }
+
+    private static void close(Closeable... closeables) {
+        for (Closeable closeable : closeables) {
+            if (closeable != null) {
+                try {
+                    closeable.close();
+                } catch (IOException e) {
+                    // ignore
+                }
+            }
+        }
     }
 }

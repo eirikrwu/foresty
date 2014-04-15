@@ -8,6 +8,7 @@ subprojects {
     dependencies {
         compile group: 'com.google.guava', name: 'guava', version: '15.0'
         compile 'log4j:log4j:1.2.16'
+        compile 'commons-codec:commons-codec:1.9'
 
         testCompile 'junit:junit:4.11'
     }
