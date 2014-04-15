@@ -44,7 +44,7 @@ public class QuartzConfig {
         cronTriggerFactoryBean.setName("RollingEventTrigger");
         cronTriggerFactoryBean.setTimeZone(TimeZone.getTimeZone("GMT+8:00"));
         cronTriggerFactoryBean.setJobDetail(eventRollingJobDetailFactoryBean().getObject());
-        cronTriggerFactoryBean.setCronExpression("0 0 3 * * ?");
+        cronTriggerFactoryBean.setCronExpression("0 0 4 * * ?");
 
         return cronTriggerFactoryBean;
     }

@@ -35,7 +35,7 @@ public class EventRollingJob implements Job {
     @Transactional
     public void execute(JobExecutionContext context) throws JobExecutionException {
         Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.HOUR, -24 * this.rollingDays);
+        calendar.add(Calendar.DAY_OF_YEAR, -1 * this.rollingDays);
 
         EventRepository.EventCriteria criteria = new EventRepository.EventCriteria();
         criteria.setMaxStartTime(calendar.getTime());
