@@ -23,6 +23,8 @@ import java.util.zip.GZIPOutputStream;
  * Created by ericwu on 3/15/14.
  */
 public class ForestyAppender extends AppenderSkeleton {
+    public static final int MAX_SINGLE_LOG_CONTENT_LENGTH = 1024;
+
     public static final String LOG_MESSAGE_SEPARATOR = "__/\n/__";
     public static final String PATH_PREFIX = "__begin-foresty__";
     public static final String PATH_SAPERATOR = ",,";
@@ -46,14 +48,9 @@ public class ForestyAppender extends AppenderSkeleton {
     }
 
     public class LogSendingThread extends Thread {
-        public static final int MAX_SINGLE_LOG_LENGTH = 1024;
         private final Queue<String> cachedLoggings = new ConcurrentLinkedQueue<String>();
 
         public void addLog(String log) {
-            if (log.length() > MAX_SINGLE_LOG_LENGTH) {
-                log = log.substring(0, MAX_SINGLE_LOG_LENGTH);
-            }
-
             this.cachedLoggings.add(log);
         }
 
@@ -171,8 +168,13 @@ public class ForestyAppender extends AppenderSkeleton {
 
         // if there is no event and this appender is event log only, ignore the log message
         if (eventName != null) {
+            String logContent = getLayout().format(event).trim();
+            if (logContent.length() > MAX_SINGLE_LOG_CONTENT_LENGTH) {
+                logContent = logContent.substring(0, MAX_SINGLE_LOG_CONTENT_LENGTH);
+            }
+
             StringBuilder sb = new StringBuilder();
-            sb.append(getLayout().format(event).trim());
+            sb.append(logContent);
             sb.append(PATH_PREFIX);
 
             // first element is timestamp
