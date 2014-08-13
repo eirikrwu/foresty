@@ -46,9 +46,14 @@ public class ForestyAppender extends AppenderSkeleton {
     }
 
     public class LogSendingThread extends Thread {
+        public static final int MAX_SINGLE_LOG_LENGTH = 1024;
         private final Queue<String> cachedLoggings = new ConcurrentLinkedQueue<String>();
 
         public void addLog(String log) {
+            if (log.length() > MAX_SINGLE_LOG_LENGTH) {
+                log = log.substring(0, MAX_SINGLE_LOG_LENGTH);
+            }
+
             this.cachedLoggings.add(log);
         }
 
